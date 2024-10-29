@@ -1,0 +1,28 @@
+# Dockerfile for hello-1
+
+FROM node:16
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json to install dependencies
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install express redis
+
+# Copy the application files
+COPY . .
+
+# Set default environment variables for Redis connection
+# These will be overridden by Kubernetes config or secrets
+
+ENV REDIS_HOST=redis-1 
+ENV REDIS_PORT=6379
+ENV REDIS_PASSWORD=password
+
+# Expose the application port
+EXPOSE 8000
+
+# Command to run the app
+CMD ["node", "hello1/hello-1.js"]
