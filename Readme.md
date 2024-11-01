@@ -169,7 +169,7 @@ data:
 ```yaml
 kubectl apply -f redis-secret.yaml
 ```
-### 2.3. Deploy Redis as a StatefulSet
+### 2.3. Deploy Redis as a StatefulSet (redis-1)
 
 A StatefulSet ensures stable network identity and persistent storage, ideal for a database like Redis
 
@@ -296,4 +296,182 @@ Apply the services:
 
 ```sh
 kubectl apply -f hello-1-service.yml
+```
+
+### 2.5 Verify the Deployment and Services for hello1 
+
+Check the status of your pods to confirm that they’re running:
+```sh
+kubectl get pods -n hello-app
+kubectl get svc -n hello-app
+```
+
+
+### 2.6 Create a Persistent Volume and Persistent Volume Claim for redis-2
+
+redis-2-pv.yaml
+
+```yaml
+# redis-2-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-2-pv
+  namespace: hello-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/redis-2"  # Change this path as necessary for your environment
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-2-pvc
+  namespace: hello-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+• Apply file
+
+```yaml
+kubectl apply -f redis-2-pv.yml
+```
+
+### 2.7. Deploy Redis as a StatefulSet (redis-2)
+
+```yaml
+# redis-2-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-2
+  namespace: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-2
+  template:
+    metadata:
+      labels:
+        app: redis-2
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2
+        ports:
+        - containerPort: 6379
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+        volumeMounts:
+        - mountPath: /data
+          name: redis-storage  # Mount the PVC at /data, the default data directory for Redis
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:
+          claimName: redis-2-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-2
+  namespace: hello-app
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    app: redis-2
+  type: ClusterIP
+```
+• Apply the StatefulSet and Service:
+
+```sh
+kubectl apply -f redis-2-deployment.yaml
+```
+
+### 2.8 Deploy hello2 (go) Deployment and Service
+Save the following YAML to a file named hello1-deployment.yml
+```yaml
+# hello2-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello2
+  namespace: hello-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello2
+  template:
+    metadata:
+      labels:
+        app: hello2
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:     
+      - name: hello2
+        image: docker.io/chumpol01/hello2-app:latest  # Replace with the correct image path
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis-2:6379"  # Updated to use redis-2 service
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        - name: REDIS_DB
+          value: "0"
+```
+Apply the deployment:
+
+```sh
+kubectl apply -f hello-1-deployment.yaml
+
+```
+Save the following YAML to a file named hello-2-service.yml
+```yaml
+# hello2-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello2-service
+  namespace: hello-app
+spec:
+  type: ClusterIP
+  selector:
+    app: hello2
+  ports:
+    - protocol: TCP
+      port: 8000          # Service port for hello2
+      targetPort: 8000 
+```
+Apply the services:
+
+```sh
+kubectl apply -f hello-2-service.yml
+```
+### 2.9 Verify the Deployment and Services for hello2
+
+Check the status of your pods to confirm that they’re running:
+```sh
+kubectl get pods -n hello-app
+kubectl get svc -n hello-app
 ```
