@@ -71,7 +71,7 @@ docker build -t yourusername/hello1-app:latest .
 docker push yourusername/hello1-app:latest
 ```
 
-### 1.2.	Build and push hello2 (Go) image:
+### 1.2. Build and push hello2 (Go) image:
 
 •	hello2 is a Go application that listens for requests.
  
@@ -112,7 +112,7 @@ docker push yourusername/hello2-app:latest
 
 ## Step 2: Deploy hello1 and hello2 Applications on Kubernetes
 
-### 2.1 Create a Persistent Volume and Persistent Volume Claim for redis-1
+### 2.1. Create a Persistent Volume and Persistent Volume Claim for redis-1
 To ensure Redis data persists across pod restarts, create a Persistent Volume (PV) and Persistent Volume Claim (PVC) for storage.
 
 • Save to file "redis-1-pv.yml
@@ -149,7 +149,7 @@ spec:
 ```yaml
 kubectl apply -f redis-pv.yml
 ```
-### 2.2  Create a Secret for Redis Password 
+### 2.2.  Create a Secret for Redis Password 
 If Redis is configured with authentication, create a Kubernetes Secret to store the password.
 
 ```yaml
@@ -298,7 +298,7 @@ Apply the services:
 kubectl apply -f hello-1-service.yml
 ```
 
-### 2.5 Verify the Deployment and Services for hello1 
+### 2.5. Verify the Deployment and Services for hello1 
 
 Check the status of your pods to confirm that they’re running:
 ```sh
@@ -307,7 +307,7 @@ kubectl get svc -n hello-app
 ```
 
 
-### 2.6 Create a Persistent Volume and Persistent Volume Claim for redis-2
+### 2.6. Create a Persistent Volume and Persistent Volume Claim for redis-2
 
 redis-2-pv.yaml
 
@@ -403,7 +403,7 @@ spec:
 kubectl apply -f redis-2-deployment.yaml
 ```
 
-### 2.8 Deploy hello2 (go) Deployment and Service
+### 2.8. Deploy hello2 (go) Deployment and Service
 Save the following YAML to a file named hello1-deployment.yml
 ```yaml
 # hello2-deployment.yaml
@@ -468,7 +468,7 @@ Apply the services:
 ```sh
 kubectl apply -f hello-2-service.yml
 ```
-### 2.9 Verify the Deployment and Services for hello2
+### 2.9. Verify the Deployment and Services for hello2
 
 Check the status of your pods to confirm that they’re running:
 ```sh
@@ -476,7 +476,7 @@ kubectl get pods -n hello-app
 kubectl get svc -n hello-app
 ```
 
-## Step 3 Set Up Ingress for hello1 and hello2
+## Step 3. Set Up Ingress for hello1 and hello2
 The Ingress configuration routes requests to /hello1 and /hello2 to hello1-service and hello2-service, respectively.
 
 Save the following YAML to a file named hello-app-ingress.yaml:
@@ -516,7 +516,7 @@ Apply the Ingress configuration:
 kubectl apply -f hello-app-ingress.yaml
 ```
 
-## Step 4 Test the Setup
+## Step 4. Test the Setup
 4.1.	Ensure hello-app.local is mapped to 127.0.0.1 in your /etc/hosts file:
 4.2.	Access the applications in your browser or using curl:
 
