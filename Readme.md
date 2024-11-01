@@ -12,8 +12,15 @@ This guide covers how to deploy two applications, hello1 (Node.js) and hello2 (G
 
   •	Modify your /etc/hosts file to include:
 
+  
 ```
 127.0.0.1 hello-app.local
+
+```
+ •	Create namespace "hello-app" in Kubernetes
+
+```sh
+kubectl create namespace hello-app
 ```
 
 ## Step 1: Prepare Docker Images for hello1 and hello2
@@ -54,4 +61,8 @@ ENV password=password
 EXPOSE 8000
 
 # Command to run the app
-CMD ["node", "hello1/hello-1.js"]```
+CMD ["node", "hello1/hello-1.js"]
+```
+
+
+
