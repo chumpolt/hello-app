@@ -1,4 +1,4 @@
-#Deploying hello1 (Node.js) and hello2 (Go) Applications on Kubernetes
+# Deploying hello1 (Node.js) and hello2 (Go) Applications on Kubernetes
 
 This guide covers how to deploy two applications, hello1 (Node.js) and hello2 (Go), on Kubernetes. It includes setting up the necessary Deployments, Services, and Ingress configurations to route traffic to each app using an NGINX Ingress controller.
 
@@ -254,7 +254,7 @@ spec:
         - name: regcred
       containers:
       - name: hello1
-        image: docker.io/chumpol01/hello1-app:latest  
+        image: docker.io/youeusername/hello1-app:latest  # Replace with your username
         ports:
         - containerPort: 8000
         env:
