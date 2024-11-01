@@ -17,9 +17,9 @@ COPY . .
 # Set default environment variables for Redis connection
 # These will be overridden by Kubernetes config or secrets
 
-ENV REDIS_HOST=redis-1 
-ENV REDIS_PORT=6379
-ENV REDIS_PASSWORD=password
+ENV host=redis-1 
+ENV port=6379
+ENV password=password
 
 # Expose the application port
 EXPOSE 8000

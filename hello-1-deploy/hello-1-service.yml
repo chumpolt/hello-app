@@ -1,0 +1,14 @@
+# hello-1-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello1-service
+  namespace: hello-app
+spec:
+  type: ClusterIP  # Change to NodePort or LoadBalancer if needed
+  selector:
+    app: hello1
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

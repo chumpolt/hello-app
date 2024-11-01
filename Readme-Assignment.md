@@ -30,4 +30,5 @@ export REDIS_HOST="localhost:6379"
 export REDIS_PASSWORD="password"
 export REDIS_DB="0"
 
-go run 
+go run main.go
+```

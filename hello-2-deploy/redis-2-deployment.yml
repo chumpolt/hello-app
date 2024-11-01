@@ -1,0 +1,48 @@
+# redis-2-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-2
+  namespace: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-2
+  template:
+    metadata:
+      labels:
+        app: redis-2
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2
+        ports:
+        - containerPort: 6379
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+        volumeMounts:
+        - mountPath: /data
+          name: redis-storage  # Mount the PVC at /data, the default data directory for Redis
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:
+          claimName: redis-2-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-2
+  namespace: hello-app
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    app: redis-2
+  type: ClusterIP

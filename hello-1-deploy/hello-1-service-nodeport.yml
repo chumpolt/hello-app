@@ -1,0 +1,15 @@
+# hello-1-service-nodeport.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello1-service-nodeport
+  namespace: hello-app
+spec:
+  type: NodePort
+  selector:
+    app: hello1
+  ports:
+    - protocol: TCP
+      port: 8000         # Port on the Service
+      targetPort: 8000   # Port on the hello1 app container
+      nodePort: 30080    # Port on the host (accessible on localhost:30080)

@@ -1,0 +1,14 @@
+# hello2-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello2-service
+  namespace: hello-app
+spec:
+  type: ClusterIP
+  selector:
+    app: hello2
+  ports:
+    - protocol: TCP
+      port: 8000          # Service port for hello2
+      targetPort: 8000 

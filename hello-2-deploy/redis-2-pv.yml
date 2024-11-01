@@ -1,0 +1,27 @@
+# redis-2-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-2-pv
+  namespace: hello-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/redis-2"  # Change this path as necessary for your environment
+
+---
+# redis-2-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-2-pvc
+  namespace: hello-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

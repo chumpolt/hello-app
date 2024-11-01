@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-1
+  namespace: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-1
+  template:
+    metadata:
+      labels:
+        app: redis-1
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        args: ["--requirepass", "$(REDIS_PASSWORD)"] 
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - mountPath: /data
+          name: redis-storage
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:
+          claimName: redis-1-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-1
+  namespace: hello-app
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis-1
+  type: ClusterIP

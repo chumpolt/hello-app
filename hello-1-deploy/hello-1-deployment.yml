@@ -1,0 +1,33 @@
+# hello-1-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello1
+  namespace: hello-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello1
+  template:
+    metadata:
+      labels:
+        app: hello1
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+      - name: hello1
+        image: docker.io/chumpol01/hello1-app:latest  
+        ports:
+        - containerPort: 8000
+        env:
+        - name: host
+          value: "redis-1"  # Redis service name
+        - name: port
+          value: "6379"
+        - name: password
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password

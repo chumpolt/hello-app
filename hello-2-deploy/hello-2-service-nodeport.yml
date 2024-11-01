@@ -1,0 +1,15 @@
+# hello2-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello2-service-nodeport
+  namespace: hello-app
+spec:
+  type: NodePort
+  selector:
+    app: hello2
+  ports:
+    - protocol: TCP
+      port: 8000          # Service port
+      targetPort: 8000    # Container port for hello2 app
+      nodePort: 30081     # External NodePort accessible from outside the cluster

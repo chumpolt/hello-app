@@ -1,0 +1,17 @@
+kubectl create namespace hello-app
+
+
+kubectl create secret docker-registry regcred \
+    --docker-server=docker.io \
+    --docker-username=chumpol01 \
+    --docker-password==Ter@2000 \
+    --docker-email=chumpol01@hotmail.com \
+    --namespace hello-app
+
+
+kubectl create secret docker-registry regcred \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=chumpol01@hotmail.com \
+  --docker-password=Ter@2000 \
+  --docker-email=chumpol01@hotmail.com \
+  --namespace hello-app

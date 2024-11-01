@@ -1,0 +1,28 @@
+# hello-app-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-app-ingress
+  namespace: hello-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: hello-app.local   # Hostname for accessing the services (update for your local testing)
+      http:
+        paths:
+          - path: /hello1(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: hello1-service
+                port:
+                  number: 8000
+          - path: /hello2(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: hello2-service
+                port:
+                  number: 8000
