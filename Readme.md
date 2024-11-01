@@ -475,3 +475,72 @@ Check the status of your pods to confirm that they’re running:
 kubectl get pods -n hello-app
 kubectl get svc -n hello-app
 ```
+
+## Step 3 Set Up Ingress for hello1 and hello2
+The Ingress configuration routes requests to /hello1 and /hello2 to hello1-service and hello2-service, respectively.
+
+Save the following YAML to a file named hello-app-ingress.yaml:
+```yaml
+# hello-app-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-app-ingress
+  namespace: hello-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: hello-app.local   # Hostname for accessing the services (update for your local testing)
+      http:
+        paths:
+          - path: /hello1(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: hello1-service
+                port:
+                  number: 8000
+          - path: /hello2(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: hello2-service
+                port:
+                  number: 8000
+```
+Apply the Ingress configuration:
+
+```yaml
+kubectl apply -f hello-app-ingress.yaml
+```
+
+## Step 4 Test the Setup
+4.1.	Ensure hello-app.local is mapped to 127.0.0.1 in your /etc/hosts file:
+4.2.	Access the applications in your browser or using curl:
+
+	•	hello1: http://hello-app.local/hello1/hello1
+ 
+	•	hello2: http://hello-app.local/hello2/hello2
+ 
+You should see responses indicating successful routing, such as:
+
+	•	"Hello-1 from hello1 service" for /hello1/hello1
+ 
+	•	"Hello-2 from hello2 service" for /hello2/hello2
+
+4.3. View Console log in pod by
+
+```sh
+kubectl logs -f 
+
+## Troubleshooting
+
+	•	404 Not Found: If you receive a 404, verify the IngressClass and Ingress configuration. Ensure the Ingress resource uses the nginx class and that paths match correctly.
+	•	Ingress Controller Logs: Check the logs of the NGINX Ingress controller pod for routing or backend errors: 
+
+```sh
+kubectl logs -n ingress-nginx <nginx-ingress-pod-name>
+```
+ 
