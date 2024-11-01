@@ -64,5 +64,43 @@ EXPOSE 8000
 CMD ["node", "hello1/hello-1.js"]
 ```
 
+•	Build and push:
+
+```sh
+docker build -t yourusername/hello1-app:latest .
+docker push yourusername/hello1-app:latest
+```
+
+### 1.2.	Build and push hello2 (Go) image:
+
+•	hello2 is a Go application that listens for requests.
+ 
+•	Dockerfile:
+
+``` dockerfile
+# Use the official Golang image to allow running code directly with `go run`
+FROM golang:1.18
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go module files and download dependencies
+COPY hello2/go.mod hello2/go.sum ./
+RUN go mod download
+
+# Copy the entire application source code
+COPY hello2/ .
+
+# Set environment variables for Redis
+ENV REDIS_HOST="localhost:6379"
+ENV REDIS_PASSWORD="password"
+ENV REDIS_DB="0"
+
+# Expose the application port if necessary
+EXPOSE 8000
+
+# Run the application using `go run`
+CMD ["go", "run", "main.go"]
+``` 
 
 
