@@ -568,3 +568,66 @@ Log detail show
 kubectl logs -n ingress-nginx <nginx-ingress-pod-name>
 ```
  
+
+## Option: Use External Public-IP
+
+### Step 1: Reserve a Static IP Address
+
+1. If you’re using a cloud provider (such as Google Cloud, AWS, or Azure), reserve a static IP address through their console or CLI.
+ 
+	• Google Cloud: gcloud compute addresses create <address-name> --region <region>
+ 
+	• AWS: Allocate an Elastic IP.
+ 
+	• Azure: Reserve a static IP in the networking section.
+ 
+2. Note the reserved IP address (e.g., STATIC_IP).
+
+### Step 2: Configure the NGINX Ingress Controller Service
+
+Modify the NGINX Ingress Controller Service to use this static IP. The Ingress Controller usually runs in the kube-system or ingress-nginx namespace.
+
+1. Edit the NGINX Ingress Service:
+   
+```sh
+kubectl edit svc -n ingress-nginx ingress-nginx-controller
+```
+
+2. Update the Service configuration to specify the externalIP:
+ 
+ ```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  type: LoadBalancer
+  loadBalancerIP: STATIC_IP   # Replace with your reserved static IP
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: 443
+      protocol: TCP
+      name: https
+```
+### Step 3: Apply and Verify the Configuration
+
+Save the changes and ensure Kubernetes applies them. Kubernetes will provision the LoadBalancer with the specified static IP.
+
+1. Verify the Service:
+
+```sh
+kubectl get svc -n ingress-nginx
+```
+
+Check the EXTERNAL-IP column to confirm that the static IP is assigned.
+
+
+### Step 4: Access the Ingress
+
+Now, your NGINX Ingress Controller will be accessible via the assigned static IP. You can use this IP to route DNS entries or directly access your applications exposed through the Ingress.
