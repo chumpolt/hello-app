@@ -103,4 +103,49 @@ EXPOSE 8000
 CMD ["go", "run", "main.go"]
 ``` 
 
+•	Build and push:
 
+```sh
+docker build -t yourusername/hello2-app:latest .
+docker push yourusername/hello2-app:latest
+```
+
+## Step 2: Deploy hello1 and hello2 Applications on Kubernetes
+
+### 2.1 Create a Persistent Volume and Persistent Volume Claim for redis-1
+To ensure Redis data persists across pod restarts, create a Persistent Volume (PV) and Persistent Volume Claim (PVC) for storage.
+
+• Save to file "redis-1-pv.yml
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-1-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/redis-1"  
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-1-pvc
+  namespace: hello-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+
+• Apply file
+
+```yaml
+kubectl apply -f redis-pv.yml
+```
