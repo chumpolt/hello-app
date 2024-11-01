@@ -5,8 +5,11 @@ This guide covers how to deploy two applications, hello1 (Node.js) and hello2 (G
 ## Prerequisites
 
 •	Kubernetes cluster (Docker Desktop, Minikube, or any Kubernetes setup)
+
 •	kubectl configured to interact with your cluster
+
 •	NGINX Ingress Controller installed
+
 •	Modify your /etc/hosts file to include:
 
 ```
