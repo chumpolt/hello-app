@@ -231,3 +231,69 @@ spec:
 ```sh
 kubectl apply -f redis-1-deployment.yaml
 ```
+### 2.4. Deploy hello1 Deployment and Service
+Save the following YAML to a file named hello1-deployment.yml
+```yaml
+# hello-1-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello1
+  namespace: hello-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello1
+  template:
+    metadata:
+      labels:
+        app: hello1
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+      - name: hello1
+        image: docker.io/chumpol01/hello1-app:latest  
+        ports:
+        - containerPort: 8000
+        env:
+        - name: host
+          value: "redis-1"  # Redis service name
+        - name: port
+          value: "6379"
+        - name: password
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+```
+Apply the deployment:
+
+```sh
+kubectl apply -f hello-1-deployment.yaml
+```
+
+Save the following YAML to a file named hello-1-service.yml
+```yaml
+# hello-1-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello1-service
+  namespace: hello-app
+spec:
+  type: ClusterIP  # Change to NodePort or LoadBalancer if needed
+  selector:
+    app: hello1
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+
+```
+Apply the services:
+
+```sh
+kubectl apply -f hello-1-service.yml
+```
