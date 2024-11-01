@@ -531,14 +531,38 @@ You should see responses indicating successful routing, such as:
 	•	"Hello-2 from hello2 service" for /hello2/hello2
 
 4.3. View Console log in pod by
+for hell01 app
 
 ```sh
-kubectl logs -f 
+kubectl logs -f <pod-hello-1-name> -n hello-app
+```
+Log detail show
+
+```Plaintext
+Redis client connected
+Session ID: 35
+Session ID: 36
+Session ID: 38
+```
+
+
+for hello2 app
+```sh
+kubectl logs -f <pod-hello-2-name> -n hello-app
+```
+
+Log detail show
+
+```Plaintext
+⇨ http server started on [::]:8000
+{"time":"2024-11-01T06:49:41.456978881Z","level":"INFO","prefix":"echo","file":"main.go","line":"35","message":"Session: 2024-11-01 06:49:41.453995506 +0000 UTC - 21"}
+{"time":"2024-11-01T06:49:52.709038095Z","level":"INFO","prefix":"echo","file":"main.go","line":"35","message":"Session: 2024-11-01 06:49:52.707511637 +0000 UTC - 23"}
+```
 
 ## Troubleshooting
 
-	•	404 Not Found: If you receive a 404, verify the IngressClass and Ingress configuration. Ensure the Ingress resource uses the nginx class and that paths match correctly.
-	•	Ingress Controller Logs: Check the logs of the NGINX Ingress controller pod for routing or backend errors: 
+• 404 Not Found: If you receive a 404, verify the IngressClass and Ingress configuration. Ensure the Ingress resource uses the nginx class and that paths match correctly.
+• Ingress Controller Logs: Check the logs of the NGINX Ingress controller pod for routing or backend errors: 
 
 ```sh
 kubectl logs -n ingress-nginx <nginx-ingress-pod-name>
