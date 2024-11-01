@@ -118,7 +118,7 @@ To ensure Redis data persists across pod restarts, create a Persistent Volume (P
 • Save to file "redis-1-pv.yml
 
 ```yaml
-apiVersion: v1
+# redis-1-pv.ymlapiVersion: v1
 kind: PersistentVolume
 metadata:
   name: redis-1-pv
@@ -148,4 +148,86 @@ spec:
 
 ```yaml
 kubectl apply -f redis-pv.yml
+```
+### 2.2  Create a Secret for Redis Password 
+If Redis is configured with authentication, create a Kubernetes Secret to store the password.
+
+```yaml
+# redis-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+  namespace: hello-app
+type: Opaque
+data:
+  password: <base64_encoded_password>  # Replace with the base64-encoded Redis password
+ 
+```
+• Apply the secret:
+
+```yaml
+kubectl apply -f redis-secret.yaml
+```
+### 2.3. Deploy Redis as a StatefulSet
+
+A StatefulSet ensures stable network identity and persistent storage, ideal for a database like Redis
+
+```yaml
+# redis-1-deployment.yml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-1
+  namespace: hello-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-1
+  template:
+    metadata:
+      labels:
+        app: redis-1
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+        args: ["--requirepass", "$(REDIS_PASSWORD)"] 
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - mountPath: /data
+          name: redis-storage
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:
+          claimName: redis-1-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-1
+  namespace: hello-app
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis-1
+  type: ClusterIP
+```
+
+• Apply the StatefulSet and Service:
+
+```sh
+kubectl apply -f redis-1-deployment.yaml
 ```
