@@ -1,0 +1,54 @@
+# .github/workflows/ci-cd.yaml
+name: CI/CD Pipeline for hello-app
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_REGISTRY: docker.io
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      HELLO1_IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/hello1-app:latest
+      HELLO2_IMAGE: ${{ env.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/hello2-app:latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - name: Build hello1 Docker image
+        run: docker build -t $HELLO1_IMAGE hello1
+
+      - name: Push hello1 Docker image
+        run: docker push $HELLO1_IMAGE
+
+      - name: Build hello2 Docker image
+        run: docker build -t $HELLO2_IMAGE hello2
+
+      - name: Push hello2 Docker image
+        run: docker push $HELLO2_IMAGE
+
+      - name: Set up Kubernetes
+        run: |
+          echo "$KUBE_CONFIG" | base64 --decode > ~/.kube/config
+          kubectl config set-context --current --namespace=hello-app
+
+      - name: Update hello1 deployment
+        run: |
+          kubectl set image deployment/hello1 hello1=$HELLO1_IMAGE --record
+
+      - name: Update hello2 deployment
+        run: |
+          kubectl set image deployment/hello2 hello2=$HELLO2_IMAGE --record
